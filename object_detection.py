@@ -26,7 +26,13 @@ faces = faceCascade.detectMultiScale(gray, 1.1, 4)
 for (x, y, w, h) in faces:
     cv2.rectangle(image, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
+# Resize image for display
+scale_percent = 50  # Resize to 50% of original size
+width = int(image.shape[1] * scale_percent / 100)
+height = int(image.shape[0] * scale_percent / 100)
+resized_image = cv2.resize(image, (width, height), interpolation=cv2.INTER_AREA)
+
 # Show result
-cv2.imshow("Detected Faces", image)
+cv2.imshow("Detected Faces", resized_image)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
