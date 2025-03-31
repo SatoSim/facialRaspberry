@@ -36,11 +36,15 @@ while True:
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-    # Resize frame for display
-    scale_percent = 50  # Resize to 50% of original size
-    width = int(frame.shape[1] * scale_percent / 100)
-    height = int(frame.shape[0] * scale_percent / 100)
-    resized_frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+    # Ensure frame size is valid before resizing
+    if frame.shape[1] > 0 and frame.shape[0] > 0:
+        scale_percent = 50  # Resize to 50% of original size
+        width = max(1, int(frame.shape[1] * scale_percent / 100))
+        height = max(1, int(frame.shape[0] * scale_percent / 100))
+        resized_frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+    else:
+        print("Warning: Frame size is invalid, skipping resize.")
+        resized_frame = frame  # Use original frame if resizing fails
 
     # Show result
     cv2.imshow("Live Face Detection", resized_frame)
