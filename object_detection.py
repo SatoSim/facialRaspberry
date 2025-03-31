@@ -1,8 +1,8 @@
 import cv2
 
 # Load a pre-trained model (Haar cascade for face detection)
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
+#face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 # Load an image captured with raspistill
 image = cv2.imread("image.jpg")
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
