@@ -13,4 +13,4 @@ for i in range(num_images):
     image_path = os.path.join(save_folder, f"image_{i+1}.jpg")
     os.system(f"raspistill -o {image_path}")
     print(f"Captured: {image_path}")
-    time.sleep(0.2)  # 0.2-second delay
+    time.sleep(0.01)  # 0.2-second delay
