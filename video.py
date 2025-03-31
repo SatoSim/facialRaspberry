@@ -38,7 +38,11 @@ while True:
     if frame is None:
         continue
 
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Ensure the frame is in the correct format before converting
+    if len(frame.shape) == 3:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = frame  # If it's already grayscale, keep it as is
 
     # Detect faces with optimized parameters
     faces = faceCascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
