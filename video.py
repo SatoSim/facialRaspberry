@@ -19,12 +19,15 @@ if not capture.isOpened():
 while True:
     # Capture frame-by-frame
     ret, frame = capture.read()
-    if not ret:
+    if not ret or frame is None:
         print("Error: Failed to capture frame!")
-        break
+        continue
 
-    # Convert frame to grayscale
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    # Ensure the frame has the correct number of channels before converting
+    if len(frame.shape) == 3:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    else:
+        gray = frame  # If already grayscale, keep it as is
 
     # Detect faces
     faces = faceCascade.detectMultiScale(gray, 1.1, 4)
