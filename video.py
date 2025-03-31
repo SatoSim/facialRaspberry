@@ -1,4 +1,5 @@
 import cv2
+import threading
 
 # Load Haar cascade for face detection
 faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -11,48 +12,46 @@ if faceCascade.empty():
 # Open video capture (0 for default camera)
 capture = cv2.VideoCapture(0)
 
-# Check if camera opened successfully
+# Reduce resolution for better performance
+capture.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
+capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
+
 if not capture.isOpened():
     print("Error: Could not open camera!")
     exit()
 
+frame = None
+
+def capture_frames():
+    global frame
+    while True:
+        ret, frame = capture.read()
+        if not ret:
+            print("Error: Failed to capture frame!")
+            break
+
+# Start capturing in a separate thread
+thread = threading.Thread(target=capture_frames, daemon=True)
+thread.start()
+
 while True:
-    # Capture frame-by-frame
-    ret, frame = capture.read()
-    if not ret or frame is None:
-        print("Error: Failed to capture frame!")
+    if frame is None:
         continue
 
-    # Ensure the frame has the correct number of channels before converting
-    if len(frame.shape) == 3:
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    else:
-        gray = frame  # If already grayscale, keep it as is
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    # Detect faces
-    faces = faceCascade.detectMultiScale(gray, 1.1, 4)
+    # Detect faces with optimized parameters
+    faces = faceCascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5, minSize=(30, 30))
 
     # Draw rectangles around faces
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
 
-    # Ensure frame size is valid before resizing
-    if frame.shape[1] > 0 and frame.shape[0] > 0:
-        scale_percent = 50  # Resize to 50% of original size
-        width = max(1, int(frame.shape[1] * scale_percent / 100))
-        height = max(1, int(frame.shape[0] * scale_percent / 100))
-        resized_frame = cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
-    else:
-        print("Warning: Frame size is invalid, skipping resize.")
-        resized_frame = frame  # Use original frame if resizing fails
-
     # Show result
-    cv2.imshow("Live Face Detection", resized_frame)
+    cv2.imshow("Live Face Detection", frame)
 
-    # Exit loop if 'q' is pressed
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# Release capture and close windows
 capture.release()
 cv2.destroyAllWindows()
